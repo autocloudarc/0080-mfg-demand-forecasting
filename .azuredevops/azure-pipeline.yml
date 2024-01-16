@@ -15,7 +15,7 @@ trigger:
 parameters:
 - name: serviceName
   type: string
-  default: spn-bcp-01 # Convert to workflow identity federation credentials in Azure DevOps
+  default: wif-bcp-005 # Use workflow identity federation credentials in Azure DevOps for this bicep deployment (wif-bcp-005)
 - name: location
   type: string
   default: eastus2
