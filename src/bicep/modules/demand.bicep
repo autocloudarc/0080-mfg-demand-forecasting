@@ -142,7 +142,7 @@ resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@
     description: mlwDescription
     storageAccount: storageAccount.id
     keyVault: kvt.id
-    applicationInsights: appInsights.id
+    applicationInsights: appInsightsComponent.id
     containerRegistry: acr.id 
     publicNetworkAccess: publicNetworkAccess
   }
