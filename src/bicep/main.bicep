@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-param randomLongString string
+param randomLongString string = newGuid()
 param rgpName string
 param rgpLocation string
 param dbUserName string
