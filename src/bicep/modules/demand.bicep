@@ -14,6 +14,7 @@ param dbUserPw string
 param iacResourceGroupName string
 param iacUmi string
 param kvtName string
+param aiwRetentionInDays int = 7
 
 
 var staAccessTier = 'Hot'
@@ -35,13 +36,13 @@ var sqlSampleName = 'AdventureWorksLT'
 var adfPublicNetworkAccess = 'Enabled'
 var aiwPrefix = 'aiw'
 var aiwName = '${aiwPrefix}${randomString}'
-var aiwRetentionInDays = 7
 var aicType = 'web'
 var aicFlowType = 'Redfield'
 var aicRequestSource = 'IbizaMachineLearningExtension'
 var mlwTier = 'Basic'
 var mlwDescription = 'Demand Forecasting'
 var publicNetworkAccess = 'Enabled'
+var aiwSku = 'PerGB2018'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
@@ -86,7 +87,9 @@ resource appInsights 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: aiwName
   location: rgpLocation
   properties: {
-    retentionInDays: aiwRetentionInDays
+      sku: {
+        name: aiwSku
+    }
   }
 }
 
