@@ -131,8 +131,7 @@ resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@
   name: machineLearningWorkspaceName
   location: rgpLocation
   identity: {
-    type: 'userAssigned'
-    userAssignedIdentities: umi.id
+    type: 'systemAssigned'
   }
   sku: {
     tier: mlwTier
@@ -145,7 +144,6 @@ resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@
     keyVault: kvt.id
     applicationInsights: appInsights.id
     containerRegistry: acr.id 
-    primaryUserAssignedIdentity: umi.id
     publicNetworkAccess: publicNetworkAccess
   }
 }
