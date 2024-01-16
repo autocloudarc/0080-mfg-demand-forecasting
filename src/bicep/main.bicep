@@ -1,5 +1,7 @@
 targetScope = 'subscription'
 
+param randomLongString string
+param randomString string
 param rgpName string
 param rgpLocation string
 param storageAccountName string
@@ -35,6 +37,7 @@ module demand './modules/demand.bicep' = {
   }
 }
 
+output randomLongString string = randomLongString
 output randomString string = randomString
 output dbUserName string = dbUserName
 output dbUserPw string = dbUserPw
