@@ -33,7 +33,7 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 }
 
 @description('Demand forecasting solution')
-module demand './modules/demand.bicep' = {
+module demand 'modules/demand.bicep' = {
   name: 'demand-forecasting'
   scope: resourceGroup
   params: {

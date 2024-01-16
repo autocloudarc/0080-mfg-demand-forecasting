@@ -79,6 +79,7 @@ resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@
   properties: {
     friendlyName: machineLearningWorkspaceName
     storageAccount: storageAccount.id
+  }
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
@@ -107,7 +108,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   location: rgpLocation
   properties: {
     publicNetworkAccess: adfPublicNetworkAccess
-
   }
 }
 
@@ -119,5 +119,3 @@ output sqlId string = sqlServer.id
 output sqldbId string = sqlDatabase.id
 output adfId string = dataFactory.id
 output dbUserName string = dbUserName
-
-
