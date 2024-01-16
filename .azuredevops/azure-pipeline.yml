@@ -62,7 +62,7 @@ variables:
   - name: templateFile
     value: 'main.bicep'
   - name: templateParametersFile
-    value: 'main.bicepparam'
+    value: '/src/bicep/main.bicepparam'
   - name: denySettingsMode
     value: 'none'
 
