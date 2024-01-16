@@ -8,6 +8,9 @@ param rgpLocation string
 param dbUserName string
 @secure()
 param dbUserPw string
+param iacResourceGroupName string = 'iac-rgp'
+param iacUmi string = 'umi-001'
+param kvtName string = 'kvt-0906'
 
 var randomString = substring(randomLongString,0,8)
 var staPrefix = 'sta'
@@ -38,6 +41,7 @@ module demand 'modules/demand.bicep' = {
   scope: resourceGroup
   params: {
     rgpLocation: rgpLocation
+    randomString: randomString
     storageAccountName: storageAccountName
     eventHubNamespaceName: eventHubNamespaceName
     streamAnalyticsJobName: streamAnalyticsJobName
@@ -47,6 +51,9 @@ module demand 'modules/demand.bicep' = {
     dataFactoryName: dataFactoryName
     dbUserName: dbUserName
     dbUserPw: dbUserPw
+    iacResourceGroupName: iacResourceGroupName
+    iacUmi: iacUmi
+    kvtName: kvtName
   }
 }
 

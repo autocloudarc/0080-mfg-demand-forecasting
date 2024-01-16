@@ -1,5 +1,6 @@
 targetScope = 'resourceGroup'
     
+param randomString string
 param storageAccountName string
 param eventHubNamespaceName string
 param streamAnalyticsJobName string
@@ -10,6 +11,9 @@ param dataFactoryName string
 param rgpLocation string
 param dbUserName string
 param dbUserPw string
+param iacResourceGroupName string
+param iacUmi string
+param kvtName string
 
 
 var staAccessTier = 'Hot'
@@ -29,7 +33,15 @@ var sqlDbCollation = 'SQL_Latin1_General_CP1_CI_AS'
 var sqlMaxDbSize = 2147483648
 var sqlSampleName = 'AdventureWorksLT'
 var adfPublicNetworkAccess = 'Enabled'
-
+var aiwPrefix = 'aiw'
+var aiwName = '${aiwPrefix}${randomString}'
+var aiwRetentionInDays = 7
+var aicType = 'web'
+var aicFlowType = 'Redfield'
+var aicRequestSource = 'IbizaMachineLearningExtension'
+var mlwTier = 'Basic'
+var mlwDescription = 'Demand Forecasting'
+var publicNetworkAccess = 'Enabled'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
@@ -70,15 +82,65 @@ resource streamAnalyticsJob 'Microsoft.StreamAnalytics/streamingjobs@2021-10-01-
   }
 }
 
+resource appInsights 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: aiwName
+  location: rgpLocation
+  properties: {
+    retentionInDays: aiwRetentionInDays
+  }
+}
+
+resource appInsightsComponent 'Microsoft.Insights/components@2020-02-02-preview' = {
+  name: aiwName
+  location: rgpLocation
+  dependsOn: [
+    appInsights
+  ]
+  properties: {
+        Application_Type: aicType
+        ApplicationId: aiwName
+        Flow_Type: aicFlowType
+        Request_Source: aicRequestSource
+        WorkspaceResourceId: appInsights.id
+    }
+}
+
+resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' existing = {
+  name: 'acr0916'
+  scope: resourceGroup(iacResourceGroupName)
+}
+
+resource umi 'Microsoft.ManagedIdentity/identities@2023-07-31-preview' existing = {
+	name: iacUmi
+    scope: resourceGroup(iacResourceGroupName)
+}
+
+resource kvt 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+	name: kvtName
+    scope: resourceGroup(iacResourceGroupName)
+}
+
+
+
 resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
   name: machineLearningWorkspaceName
   location: rgpLocation
   identity: {
-    type: 'SystemAssigned'
+    type: 'userAssigned'
+  }
+  sku: {
+    tier: mlwTier
+    name: mlwTier
   }
   properties: {
     friendlyName: machineLearningWorkspaceName
+    description: mlwDescription
     storageAccount: storageAccount.id
+    keyVault: kvt.id
+    applicationInsights: appInsights.id
+    containerRegistry: acr.id 
+    primaryUserAssignedIdentity: umi.id
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 
@@ -111,6 +173,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   }
 }
 
+output randomString string = randomString
 output staId string = storageAccount.id
 output ehnId string = eventHubNamespace.id
 output sajId string = streamAnalyticsJob.id
@@ -119,3 +182,4 @@ output sqlId string = sqlServer.id
 output sqldbId string = sqlDatabase.id
 output adfId string = dataFactory.id
 output dbUserName string = dbUserName
+output kvtName string = kvtName
