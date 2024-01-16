@@ -60,9 +60,9 @@ variables:
   - name: pipelineWorkingDir
     value: '$(System.DefaultWorkingDirectory)/src/bicep'
   - name: templateFile
-    value: '$(pipelineWorkingDir)/src/bicep/main.bicep'
+    value: 'main.bicep'
   - name: templateParametersFile
-    value: '$(pipelineWorkingDir)/src/bicep/main.bicepparam'
+    value: 'main.bicepparam'
   - name: denySettingsMode
     value: 'none'
 
