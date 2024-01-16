@@ -73,8 +73,12 @@ resource streamAnalyticsJob 'Microsoft.StreamAnalytics/streamingjobs@2021-10-01-
 resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
   name: machineLearningWorkspaceName
   location: rgpLocation
-  properties: {
+  identity: {
+    type: 'SystemAssigned'
   }
+  properties: {
+    friendlyName: machineLearningWorkspaceName
+    storageAccount: storageAccount.id
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
