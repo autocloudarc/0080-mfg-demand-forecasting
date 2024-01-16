@@ -15,6 +15,7 @@ param iacResourceGroupName string
 param iacUmi string
 param kvtName string
 param aiwRetentionInDays int = 7
+param iacSubId string = 'e25024e7-c4a5-4883-80af-9e81b2f8f689'
 
 
 var staAccessTier = 'Hot'
@@ -43,6 +44,7 @@ var mlwTier = 'Basic'
 var mlwDescription = 'Demand Forecasting'
 var publicNetworkAccess = 'Enabled'
 var aiwSku = 'PerGB2018'
+var acrName = 'acr0916'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
@@ -109,18 +111,18 @@ resource appInsightsComponent 'Microsoft.Insights/components@2020-02-02-preview'
 }
 
 resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' existing = {
-  name: 'acr0916'
-  scope: resourceGroup(iacResourceGroupName)
+  name: acrName
+  scope: resourceGroup(iacSubId,iacResourceGroupName)
 }
 
 resource umi 'Microsoft.ManagedIdentity/identities@2023-07-31-preview' existing = {
 	name: iacUmi
-    scope: resourceGroup(iacResourceGroupName)
+    scope: resourceGroup(iacSubId,iacResourceGroupName)
 }
 
 resource kvt 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
 	name: kvtName
-    scope: resourceGroup(iacResourceGroupName)
+    scope: resourceGroup(iacSubId,iacResourceGroupName)
 }
 
 
@@ -130,6 +132,7 @@ resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@
   location: rgpLocation
   identity: {
     type: 'userAssigned'
+    userAssignedIdentities: umi.id
   }
   sku: {
     tier: mlwTier
