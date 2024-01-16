@@ -52,7 +52,7 @@ parameters:
 
 # Macro syntax variable is processed before a task runs
 variables:
-  - group: sqlCreds
+  - group: dbCreds
   - name: system.debug
     value: true 
   - name: stackName 
@@ -110,13 +110,13 @@ stages:
             inlineScript: |
               az account show
               az account set --subscription ${{ parameters.authSubscriptionId }}
-              az deployment sub create --location ${{ parameters.location }} --template-file $(templateFile) --parameters $(templateParametersFile) --parameters userName=$(sqlUserName) vgpPw=$(sqlUserPw) --what-if --verbose
+              az deployment sub create --location ${{ parameters.location }} --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --what-if --verbose
             failOnStandardError: false
             addSpnToEnvironment: true
         
   - stage: deploy
     dependsOn: plan
-    condition: and(eq('${{ parameters.operation }}', 'deploy'), succeeded('bicep_plan'))
+    condition: and(eq('${{ parameters.operation }}', 'deploy'), succeeded('plan'))
     jobs: 
       - deployment: 'Deploy'
         continueOnError: false
@@ -157,7 +157,7 @@ stages:
                     
   - stage: rollback
     dependsOn: plan
-    condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('bicep_plan'))
+    condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
     jobs: 
     - deployment: 'Rollback'
       continueOnError: false
