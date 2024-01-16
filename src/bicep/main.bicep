@@ -1,18 +1,29 @@
 targetScope = 'subscription'
 
 param randomLongString string
-param randomString string
 param rgpName string
 param rgpLocation string
-param storageAccountName string
-param eventHubNamespaceName string
-param streamAnalyticsJobName string
-param machineLearningWorkspaceName string
-param sqlServerName string
-param sqlDatabaseName string
-param dataFactoryName string
-param dbUserName string 
-param dbUserPw string 
+param dbUserName string
+@secure()
+param dbUserPw string
+
+var randomString = substring(randomLongString,0,8)
+var staPrefix = 'sta'
+var storageAccountName = '${staPrefix}${randomString}'
+var ehnPrefix = 'ehn'
+var eventHubNamespaceName = '${ehnPrefix}${randomString}'
+var sajPrefix = 'saj'
+var streamAnalyticsJobName = '${sajPrefix}${randomString}'
+var mlwPrefix = 'mlw'
+var machineLearningWorkspaceName = '${mlwPrefix}${randomString}'
+var sqsPrefix = 'sqs'
+var sqlServerName = '${sqsPrefix}${randomString}'
+var sqdPrefix = 'sqd'
+var sqlDatabaseName = '${sqdPrefix}${randomString}'
+var adfPrefix = 'adf'
+var dataFactoryName = '${adfPrefix}${randomString}'
+
+
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: rgpName
