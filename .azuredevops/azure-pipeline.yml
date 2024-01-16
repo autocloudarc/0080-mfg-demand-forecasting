@@ -138,8 +138,8 @@ stages:
               - task: AzureCLI@2
                 name: 'DeployResources'
                 env:
-                  userName: $(sqlUserName) # Maps the secret variable $(adminUser) from sqlCreds group to the environment variable adminUser
-                  vgpPw: $(slqUserPw) # Maps the secret variable $(pw) from sqlCreds group to the environment variable vgpPw
+                  userName: $(dbUserName) # Maps the secret variable $(adminUser) from sqlCreds group to the environment variable adminUser
+                  vgpPw: $(dbUserPw) # Maps the secret variable $(pw) from sqlCreds group to the environment variable vgpPw
                   stackName: $(stackName)
                 inputs:
                   azureSubscription: ${{ parameters.serviceName }}
