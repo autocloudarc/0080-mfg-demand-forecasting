@@ -1,5 +1,7 @@
 targetScope = 'subscription'
 
+// https://learn.microsoft.com/en-us/azure/devops/boards/github/link-to-from-github?view=azure-devops
+
 param randomLongString string = newGuid()
 param rgpName string
 param rgpLocation string
@@ -51,4 +53,3 @@ module demand './modules/demand.bicep' = {
 output randomLongString string = randomLongString
 output randomString string = randomString
 output dbUserName string = dbUserName
-output dbUserPw string = dbUserPw
