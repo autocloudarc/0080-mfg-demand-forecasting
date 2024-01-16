@@ -110,7 +110,7 @@ stages:
             inlineScript: |
               az account show
               az account set --subscription ${{ parameters.authSubscriptionId }}
-              az deployment sub create --location ${{ parameters.location }} --template-file "$(pipelineWorkingDir)/$(templateFile)" --parameters "$(pipelineWorkigDir)/$(templateParametersFile)" --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --what-if --verbose
+              az deployment sub create --location ${{ parameters.location }} --template-file $(pipelineWorkingDir)/$(templateFile) --parameters $(pipelineWorkigDir)/$(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --what-if --verbose
             failOnStandardError: false
             addSpnToEnvironment: true
         
