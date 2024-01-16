@@ -26,9 +26,7 @@ var sajOooMaxDelay = 5
 var sajLateArrivalMaxDelay = 16
 var sqlServerVersion = '12.0'
 var sqlDbCollation = 'SQL_Latin1_General_CP1_CI_AS'
-var sqlEdition = 'Basic'
 var sqlMaxDbSize = 2147483648
-var sqlObjectiveName = 'Basic'
 var sqlSampleName = 'AdventureWorksLT'
 var adfPublicNetworkAccess = 'Enabled'
 
@@ -76,9 +74,6 @@ resource machineLearningWorkspace 'Microsoft.MachineLearningServices/workspaces@
   name: machineLearningWorkspaceName
   location: rgpLocation
   properties: {
-    storageAccount: {
-      id: storageAccount.id
-    }
   }
 }
 
@@ -93,13 +88,12 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
 }
 
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
-    name: '${sqlServer.name}/${sqlDatabaseName}'
+    name: sqlDatabaseName
+    parent: sqlServer   
     location: rgpLocation
     properties: {
         collation: sqlDbCollation
-        edition: sqlEdition
         maxSizeBytes: sqlMaxDbSize
-        requestedServiceObjectiveName: sqlObjectiveName
         sampleName: sqlSampleName
     }
 }

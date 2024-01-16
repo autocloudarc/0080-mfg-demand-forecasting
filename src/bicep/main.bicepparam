@@ -1,6 +1,7 @@
 using './main.bicep'
 
-param randomString string = uniqueString(resourceGroup().id).substring(0, 8)
+param randomLongString string = newGuid()
+param randomString string = randomLongString.substring(0, 8)
 param rgpName string = 'rgp-0800'
 param rgpLocation string = 'eastus2'
 @minLength(3)

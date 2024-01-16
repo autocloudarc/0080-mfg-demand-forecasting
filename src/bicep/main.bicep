@@ -1,7 +1,5 @@
 targetScope = 'subscription'
 
-
-param randomString string
 param rgpName string
 param rgpLocation string
 param storageAccountName string
