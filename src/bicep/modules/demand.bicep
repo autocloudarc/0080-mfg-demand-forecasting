@@ -47,7 +47,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-01-01' = {
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2023-01-01-preview' = {
   name: eventHubNamespaceName
   location: rgpLocation
   sku: {
