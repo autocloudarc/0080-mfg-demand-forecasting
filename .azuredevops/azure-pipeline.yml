@@ -27,7 +27,7 @@ parameters:
 - name: operation
   displayName: Operation
   type: string      
-  default: deploy
+  default: rollback
   values:
     - planOnly
     - deploy
