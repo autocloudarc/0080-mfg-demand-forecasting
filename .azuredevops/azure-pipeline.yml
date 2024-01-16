@@ -151,7 +151,7 @@ stages:
                     az --version
                     az account show
                     az account set --subscription ${{ parameters.authSubscriptionId }}
-                    az stack sub create --location $primary_location --name $(stackName) --description "deployment $(stackName)" --delete-all --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --deny-settings-mode $(denySettingsMode) --yes --verbose
+                    az stack sub create --location ${{ parameters.location }} --name $(stackName) --description "deployment $(stackName)" --delete-all --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --deny-settings-mode $(denySettingsMode) --yes --verbose
                   failOnStandardError: false
                   addSpnToEnvironment: true
                     
