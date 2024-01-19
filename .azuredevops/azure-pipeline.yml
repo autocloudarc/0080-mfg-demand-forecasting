@@ -1,6 +1,8 @@
 # Deploy the Demand Forecasting solution with Bicep
 # https://aka.ms/yaml
-# az stack group create --name 'stack-$(Build.DefinitionName)' --description $(Build.DefinitionName) -g rgp-idy --delete-all -f ./main-plt-idy.bicep -p ./main-plt-idy.parameters.json --deny-settings-mode none --yes --verbose
+# az stack group create --name 'stack-$(Build.DefinitionName)' --description $(Build.DefinitionName) /
+# -g rgp-idy --delete-all -f ./main-plt-idy.bicep -p ./main-plt-idy.parameters.json --deny-settings-mode / 
+# none --yes --verbose
 # --yes \
 # --verbose
 
