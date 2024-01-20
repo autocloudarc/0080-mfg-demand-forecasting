@@ -210,6 +210,7 @@ stages:
   - stage: rollback # Note: rollback cleans up both the dev AND prd environments
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
+    maxParallel: 2
     jobs:
       - ${{ each sub in parameters.subList }}:
           - job: "rollback_sub_${{ replace(sub, '-','_') }}"
