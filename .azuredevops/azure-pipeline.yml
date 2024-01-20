@@ -204,7 +204,7 @@ stages:
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
     jobs:
-      - deployment: "Rollback"
+      - job: "Rollback"
         continueOnError: false
         timeoutInMinutes: 120
         strategy:
