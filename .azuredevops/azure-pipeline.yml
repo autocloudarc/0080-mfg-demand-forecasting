@@ -40,11 +40,10 @@ parameters:
   - name: environment
     displayName: Environment
     type: string
-    default: all
+    default: "dev,prd"
     values:
       - dev
       - prd
-      - all
   - name: secretVariableSource
     displayName: secretVariableSource
     type: string
