@@ -200,39 +200,39 @@ stages:
                     failOnStandardError: false
                     addSpnToEnvironment: true
 
-  - stage: rollback # Note: rollback cleans up the dev environment only, not the prd environment
+  - stage: rollback # Note: rollback cleans up both the dev AND prd environments
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
+    strategy:
+      matrix:
+        dev:
+          envir: dev
+          subscriptionId: ${{ parameters.devSubscriptionId }}
+        prd:
+          envir: prd
+          subscriptionId: ${{ parameters.prdSubscriptionId }}
+    pool:
+      vmImage: "ubuntu-latest"
     jobs:
       - deployment: "Rollback"
         continueOnError: false
-        # environment: dev
+        environment: $(envir)
         timeoutInMinutes: 120
-        pool:
-          vmImage: "ubuntu-latest"
-        strategy:
-          matrix:
-            dev:
-              environment: dev
-              subscriptionId: ${{ parameters.devSubscriptionId }}
-            prd:
-              environment: prd
-              subscriptionId: ${{ parameters.prdSubscriptionId }}
-              steps:
-                - checkout: none
-                - task: AzureCLI@2
-                  name: "RollbackDeployment"
-                  condition: eq('${{ parameters.operation }}', 'rollback')
-                  inputs:
-                    azureSubscription: ${{ parameters.serviceName }}
-                    scriptType: "pscore"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az upgrade --yes --verbose
-                      az bicep upgrade --verbose
-                      az --version
-                      az account show
-                      az account set --subscription $(subscriptionId)
-                      az stack sub delete --name $(stackName) --delete-all --yes --verbose
-                    failOnStandardError: false
-                    addSpnToEnvironment: true
+        steps:
+          - checkout: none
+          - task: AzureCLI@2
+            name: "RollbackDeployment"
+            condition: eq('${{ parameters.operation }}', 'rollback')
+            inputs:
+              azureSubscription: ${{ parameters.serviceName }}
+              scriptType: "pscore"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az upgrade --yes --verbose
+                az bicep upgrade --verbose
+                az --version
+                az account show
+                az account set --subscription $(subscriptionId)
+                az stack sub delete --name $(stackName) --delete-all --yes --verbose
+              failOnStandardError: false
+              addSpnToEnvironment: true
