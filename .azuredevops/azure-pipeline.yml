@@ -207,6 +207,7 @@ stages:
       - job: "Rollback"
         continueOnError: false
         timeoutInMinutes: 120
+        environment: $(envir)
         strategy:
           matrix:
             dev:
@@ -215,7 +216,6 @@ stages:
             prd:
               envir: prd
               subscriptionId: ${{ parameters.prdSubscriptionId }}
-        environment: $(envir)
         pool:
           vmImage: "ubuntu-latest"
           deploy:
