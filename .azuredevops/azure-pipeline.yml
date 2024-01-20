@@ -207,33 +207,29 @@ stages:
       - job: "Rollback"
         continueOnError: false
         timeoutInMinutes: 120
-        # environment: $(envir)
         strategy:
           matrix:
             dev:
-              # envir: dev
               subscriptionId: ${{ parameters.devSubscriptionId }}
             prd:
-              # envir: prd
               subscriptionId: ${{ parameters.prdSubscriptionId }}
         pool:
           vmImage: "ubuntu-latest"
-          deploy:
-            steps:
-              - checkout: none
-              - task: AzureCLI@2
-                name: "RollbackDeployment"
-                condition: eq('${{ parameters.operation }}', 'rollback')
-                inputs:
-                  azureSubscription: ${{ parameters.serviceName }}
-                  scriptType: "pscore"
-                  scriptLocation: "inlineScript"
-                  inlineScript: |
-                    az upgrade --yes --verbose
-                    az bicep upgrade --verbose
-                    az --version
-                    az account show
-                    az account set --subscription $(subscriptionId)
-                    az stack sub delete --name $(stackName) --delete-all --yes --verbose
-                  failOnStandardError: false
-                  addSpnToEnvironment: true
+          steps:
+            - checkout: none
+            - task: AzureCLI@2
+              name: "RollbackDeployment"
+              condition: eq('${{ parameters.operation }}', 'rollback')
+              inputs:
+                azureSubscription: ${{ parameters.serviceName }}
+                scriptType: "pscore"
+                scriptLocation: "inlineScript"
+                inlineScript: |
+                  az upgrade --yes --verbose
+                  az bicep upgrade --verbose
+                  az --version
+                  az account show
+                  az account set --subscription $(subscriptionId)
+                  az stack sub delete --name $(stackName) --delete-all --yes --verbose
+                failOnStandardError: false
+                addSpnToEnvironment: true
