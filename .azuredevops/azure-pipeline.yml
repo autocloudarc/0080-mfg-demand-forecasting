@@ -211,15 +211,15 @@ stages:
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
     jobs:
-      - job: "Rollback"
-        continueOnError: false
-        timeoutInMinutes: 120
-        pool:
-          vmImage: "ubuntu-latest"
-          steps:
-            - ${{ each sub in parameters.subList }}:
+      - ${{ each sub in parameters.subList }}:
+          - job: "Rollback-${{ sub }}"
+            continueOnError: false
+            timeoutInMinutes: 120
+            pool:
+              vmImage: "ubuntu-latest"
+              steps:
                 - task: AzureCLI@2
-                  name: "Rollback-${{ sub }}"
+                  name: "Rollback"
                   # condition: eq('${{ parameters.operation }}', 'rollback')
                   inputs:
                     azureSubscription: ${{ parameters.serviceName }}
