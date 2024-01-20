@@ -40,7 +40,7 @@ parameters:
   - name: operation
     displayName: Operation
     type: string
-    default: rollback
+    default: deploy
     values:
       - planOnly
       - deploy
@@ -212,8 +212,6 @@ stages:
     jobs:
       - ${{ each sub in parameters.subList }}:
           - job: "rollback_sub_${{ replace(sub, '-','_') }}"
-            strategy:
-              parallel: 2
             continueOnError: false
             timeoutInMinutes: 120
             pool:
