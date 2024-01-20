@@ -117,7 +117,7 @@ stages:
               failOnStandardError: false
               addSpnToEnvironment: true
 
-  - stage: deploy-to-dev
+  - stage: deploy_to_dev
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'deploy'), succeeded('plan'), or(eq('${{ parameters.environment }}', 'dev'), eq('${{ parameters.environment }}', 'all')))
     jobs:
@@ -158,8 +158,8 @@ stages:
                     failOnStandardError: false
                     addSpnToEnvironment: true
 
-  - stage: deploy-to-prd
-    dependsOn: deploy-to-dev
+  - stage: deploy_to_prd
+    dependsOn: deploy_to_dev
     condition: and(eq('${{ parameters.operation }}', 'deploy'), succeeded('plan'), or(eq('${{ parameters.environment }}', 'prd'), eq('${{ parameters.environment }}', 'all')))
     jobs:
       - deployment: "DeployToPrd"
