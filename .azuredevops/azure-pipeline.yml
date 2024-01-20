@@ -216,19 +216,19 @@ stages:
         pool:
           vmImage: "ubuntu-latest"
           steps:
-            - task: AzureCLI@2
-              name: "RollbackDeployment"
-              # condition: eq('${{ parameters.operation }}', 'rollback')
-              inputs:
-                azureSubscription: ${{ parameters.serviceName }}
-                scriptType: "pscore"
-                scriptLocation: "inlineScript"
-                inlineScript: |
-                  az upgrade --yes --verbose
-                  az bicep upgrade --verbose
-                  az --version
-                  az account show
-                  az account set --subscription $(subscriptionId)
-                  az stack sub delete --name $(stackName) --delete-all --yes --verbose
-                failOnStandardError: false
-                addSpnToEnvironment: true
+            - ${{ each sub in strategy.matrix }}:
+                - task: AzureCLI@2
+                  name: "RollbackDeployment_${{ sub.key }}"
+                  inputs:
+                    azureSubscription: ${{ parameters.serviceName }}
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az upgrade --yes --verbose
+                      az bicep upgrade --verbose
+                      az --version
+                      az account show
+                      az account set --subscription ${{ sub.value.subscriptionId }}
+                      az stack sub delete --name $(stackName) --delete-all --yes --verbose
+                    failOnStandardError: false
+                    addSpnToEnvironment: true
