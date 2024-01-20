@@ -40,6 +40,7 @@ parameters:
   - name: operation
     displayName: Operation
     type: string
+    default: deploy
     values:
       - planOnly
       - deploy
