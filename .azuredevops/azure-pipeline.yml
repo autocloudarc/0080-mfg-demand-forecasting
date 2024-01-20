@@ -40,10 +40,11 @@ parameters:
   - name: environment
     displayName: Environment
     type: string
-    default: "dev,prd"
+    default: all
     values:
       - dev
       - prd
+      - all
   - name: secretVariableSource
     displayName: secretVariableSource
     type: string
@@ -122,7 +123,7 @@ stages:
     jobs:
       - deployment: "DeployToDev"
         continueOnError: false
-        environment: ${{ parameters.environment }}
+        environment: dev
         timeoutInMinutes: 120
         strategy:
           runOnce:
@@ -204,7 +205,7 @@ stages:
     jobs:
       - deployment: "Rollback"
         continueOnError: false
-        environment: ${{ parameters.environment }}
+        environment: dev
         timeoutInMinutes: 120
         strategy:
           runOnce:
