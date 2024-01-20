@@ -28,6 +28,9 @@ parameters:
   - name: prdSubscriptionId
     type: string
     default: f179a5ea-8357-40df-aadf-e42a22124593
+  - name: subList
+    type: object
+    default: ["windows-latest", "ubuntu-latest"]
 
   # To deploy set 'operatoin' parameter to deploy, otherwise set it to planOnly or rollback
   - name: operation
@@ -207,28 +210,28 @@ stages:
       - job: "Rollback"
         continueOnError: false
         timeoutInMinutes: 120
-        strategy:
-          matrix:
-            dev:
-              subscriptionId: ${{ parameters.devSubscriptionId }}
-            prd:
-              subscriptionId: ${{ parameters.prdSubscriptionId }}
         pool:
           vmImage: "ubuntu-latest"
           steps:
-            - ${{ each sub in strategy.matrix }}:
-                - task: AzureCLI@2
-                  name: "RollbackDeployment_${{ sub.key }}"
-                  inputs:
-                    azureSubscription: ${{ parameters.serviceName }}
-                    scriptType: "pscore"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az upgrade --yes --verbose
-                      az bicep upgrade --verbose
-                      az --version
-                      az account show
-                      az account set --subscription ${{ sub.value.subscriptionId }}
-                      az stack sub delete --name $(stackName) --delete-all --yes --verbose
-                    failOnStandardError: false
-                    addSpnToEnvironment: true
+            - task: AzureCLI@2
+              name: "RollbackDeployment"
+              strategy:
+                matrix:
+                  dev:
+                    subscriptionId: ${{ parameters.devSubscriptionId }}
+                  prd:
+                    subscriptionId: ${{ parameters.prdSubscriptionId }}
+              # condition: eq('${{ parameters.operation }}', 'rollback')
+              inputs:
+                azureSubscription: ${{ parameters.serviceName }}
+                scriptType: "pscore"
+                scriptLocation: "inlineScript"
+                inlineScript: |
+                  az upgrade --yes --verbose
+                  az bicep upgrade --verbose
+                  az --version
+                  az account show
+                  az account set --subscription $(subscriptionId)
+                  az stack sub delete --name $(stackName) --delete-all --yes --verbose
+                failOnStandardError: false
+                addSpnToEnvironment: true
