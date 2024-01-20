@@ -217,20 +217,20 @@ stages:
         pool:
           vmImage: "ubuntu-latest"
           steps:
-            - ${{ each sub in subList }}:
-              - task: AzureCLI@2
-                name: "Rollback-${{ sub }}"
-                # condition: eq('${{ parameters.operation }}', 'rollback')
-                inputs:
-                  azureSubscription: ${{ parameters.serviceName }}
-                  scriptType: "pscore"
-                  scriptLocation: "inlineScript"
-                  inlineScript: |
-                    az upgrade --yes --verbose
-                    az bicep upgrade --verbose
-                    az --version
-                    az account show
-                    az account set --subscription ${{ sub }}
-                    az stack sub delete --name $(stackName) --delete-all --yes --verbose
-                  failOnStandardError: false
-                  addSpnToEnvironment: true
+            - ${{ each sub in parameters.subList }}:
+                - task: AzureCLI@2
+                  name: "Rollback-${{ sub }}"
+                  # condition: eq('${{ parameters.operation }}', 'rollback')
+                  inputs:
+                    azureSubscription: ${{ parameters.serviceName }}
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az upgrade --yes --verbose
+                      az bicep upgrade --verbose
+                      az --version
+                      az account show
+                      az account set --subscription ${{ sub }}
+                      az stack sub delete --name $(stackName) --delete-all --yes --verbose
+                    failOnStandardError: false
+                    addSpnToEnvironment: true
