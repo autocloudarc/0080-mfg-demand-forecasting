@@ -216,10 +216,9 @@ stages:
         pool:
           vmImage: "ubuntu-latest"
           steps:
-            - checkout: none
             - task: AzureCLI@2
               name: "RollbackDeployment"
-              condition: eq('${{ parameters.operation }}', 'rollback')
+              # condition: eq('${{ parameters.operation }}', 'rollback')
               inputs:
                 azureSubscription: ${{ parameters.serviceName }}
                 scriptType: "pscore"
