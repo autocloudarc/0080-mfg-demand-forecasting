@@ -203,18 +203,18 @@ stages:
   - stage: rollback # Note: rollback cleans up both the dev AND prd environments
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
-    strategy:
-      matrix:
-        dev:
-          envir: dev
-          subscriptionId: ${{ parameters.devSubscriptionId }}
-        prd:
-          envir: prd
-          subscriptionId: ${{ parameters.prdSubscriptionId }}
-    pool:
-      vmImage: "ubuntu-latest"
     jobs:
       - deployment: "Rollback"
+        strategy:
+          matrix:
+            dev:
+              envir: dev
+              subscriptionId: ${{ parameters.devSubscriptionId }}
+            prd:
+              envir: prd
+              subscriptionId: ${{ parameters.prdSubscriptionId }}
+        pool:
+          vmImage: "ubuntu-latest"
         continueOnError: false
         environment: $(envir)
         timeoutInMinutes: 120
