@@ -13,6 +13,7 @@ trigger:
   branches:
     include:
       - main
+      - dev
 
 parameters:
   - name: serviceName
@@ -21,7 +22,7 @@ parameters:
   - name: location
     type: string
     default: eastus2
-  - name: authSubscriptionId
+  - name: devSubscriptionId
     type: string
     default: e25024e7-c4a5-4883-80af-9e81b2f8f689
   - name: prdSubscriptionId
@@ -97,7 +98,7 @@ stages:
               scriptLocation: "inlineScript"
               # set account, upgrade bicep, show version and load environment variables for bash script deployBicepTemplate.sh
               inlineScript: |
-                az account set --subscription ${{ parameters.authSubscriptionId }}
+                az account set --subscription ${{ parameters.devSubscriptionId }}
                 az upgrade --yes --verbose
                 az bicep upgrade --verbose
                 az --version
@@ -112,7 +113,7 @@ stages:
               scriptLocation: "inlineScript"
               inlineScript: |
                 az account show
-                az account set --subscription ${{ parameters.authSubscriptionId }}
+                az account set --subscription ${{ parameters.devSubscriptionId }}
                 az deployment sub create --location ${{ parameters.location }} --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --what-if --verbose
               failOnStandardError: false
               addSpnToEnvironment: true
@@ -153,7 +154,7 @@ stages:
                       az bicep upgrade --verbose
                       az --version
                       az account show
-                      az account set --subscription ${{ parameters.authSubscriptionId }}
+                      az account set --subscription ${{ parameters.devSubscriptionId }}
                       az stack sub create --location ${{ parameters.location }} --name $(stackName) --description "deployment $(stackName)" --delete-all --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --deny-settings-mode $(denySettingsMode) --yes --verbose
                     failOnStandardError: false
                     addSpnToEnvironment: true
@@ -205,11 +206,18 @@ stages:
     jobs:
       - deployment: "Rollback"
         continueOnError: false
-        environment: dev
+        # environment: dev
         timeoutInMinutes: 120
+        pool:
+          vmImage: "ubuntu-latest"
         strategy:
-          runOnce:
-            deploy:
+          matrix:
+            dev:
+              environment: dev
+              subscriptionId: ${{ parameters.devSubscriptionId }}
+            prd:
+              environment: prd
+              subscriptionId: ${{ parameters.prdSubscriptionId }}
               steps:
                 - checkout: none
                 - task: AzureCLI@2
@@ -224,7 +232,7 @@ stages:
                       az bicep upgrade --verbose
                       az --version
                       az account show
-                      az account set --subscription ${{ parameters.authSubscriptionId }}
+                      az account set --subscription $(subscriptionId)
                       az stack sub delete --name $(stackName) --delete-all --yes --verbose
                     failOnStandardError: false
                     addSpnToEnvironment: true
