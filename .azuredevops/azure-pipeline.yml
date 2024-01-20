@@ -1,7 +1,7 @@
 # Deploy the Demand Forecasting solution with Bicep
 # https://aka.ms/yaml
 # az stack group create --name 'stack-$(Build.DefinitionName)' --description $(Build.DefinitionName) /
-# -g rgp-idy --delete-all -f ./main-plt-idy.bicep -p ./main-plt-idy.parameters.json --deny-settings-mode / 
+# -g rgp-idy --delete-all -f ./main-plt-idy.bicep -p ./main-plt-idy.parameters.json --deny-settings-mode /
 # none --yes --verbose
 # --yes \
 # --verbose
@@ -15,112 +15,109 @@ trigger:
       - main
 
 parameters:
-- name: serviceName
-  type: string
-  default: wif-bcp-005 # Use workflow identity federation credentials in Azure DevOps for this bicep deployment (wif-bcp-005)
-- name: location
-  type: string
-  default: eastus2
-- name: authSubscriptionId
-  type: string
-  default: e25024e7-c4a5-4883-80af-9e81b2f8f689
+  - name: serviceName
+    type: string
+    default: wif-bcp-005 # Use workflow identity federation credentials in Azure DevOps for this bicep deployment (wif-bcp-005)
+  - name: location
+    type: string
+    default: eastus2
+  - name: authSubscriptionId
+    type: string
+    default: e25024e7-c4a5-4883-80af-9e81b2f8f689
 
-# To deploy set 'operatoin' parameter to deploy, otherwise set it to planOnly or rollback
-- name: operation
-  displayName: Operation
-  type: string      
-  default: rollback
-  values:
-    - planOnly
-    - deploy
-    - rollback
-- name: environment
-  displayName: Environment
-  type: string
-  default: dev
-  values:
-    - dev
-    - prd
-# Set to true to use variable group, otherwise set it to false to use keyvault and the ...parameters.json file instead
-- name: secretVariableSource
-  displayName: secretVariableSource
-  type: string
-  default: variableGroup
-  values:
-    - variableGroup
-    - keyVault
- 
-# To deploy set 'rollback' parameter to false, otherwise set it to true
+  # To deploy set 'operatoin' parameter to deploy, otherwise set it to planOnly or rollback
+  - name: operation
+    displayName: Operation
+    type: string
+    default: rollback
+    values:
+      - planOnly
+      - deploy
+      - rollback
+  - name: environment
+    displayName: Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - prd
+  - name: secretVariableSource
+    displayName: secretVariableSource
+    type: string
+    default: variableGroup
+    values:
+      - variableGroup
+      - keyVault
 
-# Macro syntax variable is processed before a task runs
+# Macro syntax variables are processed before a task runs
 variables:
   - group: dbCreds
   - name: system.debug
-    value: true 
-  - name: stackName 
-    value: 'stack-$(Build.DefinitionName)'
+    value: true
+  - name: stackName
+    value: "stack-$(Build.DefinitionName)"
   - name: pipelineWorkingDir
-    value: '$(System.DefaultWorkingDirectory)/src/bicep'
+    value: "$(System.DefaultWorkingDirectory)/src/bicep"
   - name: templateFile
-    value: '$(pipelineWorkingDir)/main.bicep'
+    value: "$(pipelineWorkingDir)/main.bicep"
   - name: templateParametersFile
-    value: '$(pipelineWorkingDir)/main.bicepparam'
+    value: "$(pipelineWorkingDir)/main.bicepparam"
   - name: denySettingsMode
-    value: 'none'
+    value: "none"
 
 stages:
   - stage: plan
-    jobs: 
-      - job: 'Plan'
-        displayName: 'Plan'
+    jobs:
+      - job: "Plan"
+        displayName: "Plan"
         timeoutInMinutes: 180
         continueOnError: false
         cancelTimeoutInMinutes: 10
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: "ubuntu-latest"
 
-        steps: 
-        - checkout: self
-          displayName: 'Checkout'
-          fetchDepth: 0
-          # https://stackoverflow.com/questions/59508121/no-url-found-for-submodule-path-in-gitmodules-error-in-azure-devops-build
-          submodules: true
-          lfs: true 
-          persistCredentials: true
+        steps:
+          - checkout: self
+            displayName: "Checkout"
+            fetchDepth: 0
+            # https://stackoverflow.com/questions/59508121/no-url-found-for-submodule-path-in-gitmodules-error-in-azure-devops-build
+            submodules: true
+            lfs: true
+            persistCredentials: true
 
-        - task: AzureCLI@2
-          name: 'SelectSubscription'
-          inputs:
-            azureSubscription: ${{ parameters.serviceName }}
-            scriptType: 'bash' 
-            scriptLocation: 'inlineScript'
-            # set account, upgrade bicep, show version and load environment variables for bash script deployBicepTemplate.sh
-            inlineScript: |
-              az account set --subscription ${{ parameters.authSubscriptionId }}
-              az upgrade --yes --verbose
-              az bicep upgrade --verbose
-              az --version
+          - task: AzureCLI@2
+            name: "SelectSubscription"
+            inputs:
+              azureSubscription: ${{ parameters.serviceName }}
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              # set account, upgrade bicep, show version and load environment variables for bash script deployBicepTemplate.sh
+              inlineScript: |
+                az account set --subscription ${{ parameters.authSubscriptionId }}
+                az upgrade --yes --verbose
+                az bicep upgrade --verbose
+                az --version
 
-        # Plan the deployment with a what-if operation
-        - task: AzureCLI@2
-          name: 'PlanDeployment'
-          condition: or(eq('${{ parameters.operation }}', 'deploy'), eq('${{ parameters.operation }}', 'planOnly'))
-          inputs:
-            azureSubscription: ${{ parameters.serviceName }}
-            scriptType: 'pscore' 
-            scriptLocation: 'inlineScript'
-            inlineScript: |
-              az account show
-              az account set --subscription ${{ parameters.authSubscriptionId }}
-              az deployment sub create --location ${{ parameters.location }} --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --what-if --verbose
-            failOnStandardError: false
-            addSpnToEnvironment: true
-        
+          # Plan the deployment with a what-if operation
+          - task: AzureCLI@2
+            name: "PlanDeployment"
+            condition: or(eq('${{ parameters.operation }}', 'deploy'), eq('${{ parameters.operation }}', 'planOnly'))
+            inputs:
+              azureSubscription: ${{ parameters.serviceName }}
+              scriptType: "pscore"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az account show
+                az account set --subscription ${{ parameters.authSubscriptionId }}
+                az deployment sub create --location ${{ parameters.location }} --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --what-if --verbose
+              failOnStandardError: false
+              addSpnToEnvironment: true
+
   - stage: deploy
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'deploy'), succeeded('plan'))
-    jobs: 
-      - deployment: 'Deploy'
+    jobs:
+      - deployment: "Deploy"
         continueOnError: false
         environment: ${{ parameters.environment }}
         timeoutInMinutes: 120
@@ -128,61 +125,61 @@ stages:
           runOnce:
             deploy:
               steps:
-              - checkout: self
-                displayName: 'Checkout'
-                fetchDepth: 0
-                # https://stackoverflow.com/questions/59508121/no-url-found-for-submodule-path-in-gitmodules-error-in-azure-devops-build
-                submodules: true
-                lfs: true 
-                persistCredentials: true
-              
-              # Deploy the resources
-              - task: AzureCLI@2
-                name: 'DeployResources'
-                env:
-                  userName: $(dbUserName) # Maps the secret variable $(adminUser) from sqlCreds group to the environment variable adminUser
-                  vgpPw: $(dbUserPw) # Maps the secret variable $(pw) from sqlCreds group to the environment variable vgpPw
-                  stackName: $(stackName)
-                inputs:
-                  azureSubscription: ${{ parameters.serviceName }}
-                  scriptType: 'pscore' 
-                  scriptLocation: 'inlineScript'
-                  inlineScript: |
-                    az upgrade --yes --verbose
-                    az bicep upgrade --verbose
-                    az --version
-                    az account show
-                    az account set --subscription ${{ parameters.authSubscriptionId }}
-                    az stack sub create --location ${{ parameters.location }} --name $(stackName) --description "deployment $(stackName)" --delete-all --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --deny-settings-mode $(denySettingsMode) --yes --verbose
-                  failOnStandardError: false
-                  addSpnToEnvironment: true
-                    
+                - checkout: self
+                  displayName: "Checkout"
+                  fetchDepth: 0
+                  # https://stackoverflow.com/questions/59508121/no-url-found-for-submodule-path-in-gitmodules-error-in-azure-devops-build
+                  submodules: true
+                  lfs: true
+                  persistCredentials: true
+
+                # Deploy the resources
+                - task: AzureCLI@2
+                  name: "DeployResources"
+                  env:
+                    dbUserName: $(dbUserName) # Maps the secret variable $(dbUser) from dbCreds group to the environment variable dbUserName
+                    dbUserPw: $(dbUserPw) # Maps the secret variable $(dbUserPw) from sqlCreds group to the environment variable dbUserPw
+                    stackName: $(stackName)
+                  inputs:
+                    azureSubscription: ${{ parameters.serviceName }}
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az upgrade --yes --verbose
+                      az bicep upgrade --verbose
+                      az --version
+                      az account show
+                      az account set --subscription ${{ parameters.authSubscriptionId }}
+                      az stack sub create --location ${{ parameters.location }} --name $(stackName) --description "deployment $(stackName)" --delete-all --template-file $(templateFile) --parameters $(templateParametersFile) --parameters dbUserName=$(dbUserName) dbUserPw=$(dbUserPw) --deny-settings-mode $(denySettingsMode) --yes --verbose
+                    failOnStandardError: false
+                    addSpnToEnvironment: true
+
   - stage: rollback
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
-    jobs: 
-    - deployment: 'Rollback'
-      continueOnError: false
-      environment: ${{ parameters.environment }}
-      timeoutInMinutes: 120
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-            - checkout: none
-            - task: AzureCLI@2
-              name: 'RollbackDeployment'
-              condition: eq('${{ parameters.operation }}', 'rollback')
-              inputs:
-                azureSubscription: ${{ parameters.serviceName }}
-                scriptType: 'pscore' 
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  az upgrade --yes --verbose
-                  az bicep upgrade --verbose
-                  az --version
-                  az account show
-                  az account set --subscription ${{ parameters.authSubscriptionId }}
-                  az stack sub delete --name $(stackName) --delete-all --yes --verbose
-                failOnStandardError: false
-                addSpnToEnvironment: true
+    jobs:
+      - deployment: "Rollback"
+        continueOnError: false
+        environment: ${{ parameters.environment }}
+        timeoutInMinutes: 120
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: none
+                - task: AzureCLI@2
+                  name: "RollbackDeployment"
+                  condition: eq('${{ parameters.operation }}', 'rollback')
+                  inputs:
+                    azureSubscription: ${{ parameters.serviceName }}
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az upgrade --yes --verbose
+                      az bicep upgrade --verbose
+                      az --version
+                      az account show
+                      az account set --subscription ${{ parameters.authSubscriptionId }}
+                      az stack sub delete --name $(stackName) --delete-all --yes --verbose
+                    failOnStandardError: false
+                    addSpnToEnvironment: true
