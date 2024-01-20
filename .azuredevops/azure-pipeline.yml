@@ -212,7 +212,7 @@ stages:
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
     jobs:
       - ${{ each sub in parameters.subList }}:
-          - job: "Rollback-${{ sub }}"
+          - job: "rollback_sub_${{ replace(sub, '-','_') }}"
             continueOnError: false
             timeoutInMinutes: 120
             pool:
