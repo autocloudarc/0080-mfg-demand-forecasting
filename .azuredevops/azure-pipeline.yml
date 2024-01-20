@@ -30,7 +30,11 @@ parameters:
     default: f179a5ea-8357-40df-aadf-e42a22124593
   - name: subList
     type: object
-    default: ["windows-latest", "ubuntu-latest"]
+    default:
+      [
+        "25024e7-c4a5-4883-80af-9e81b2f8f689",
+        "f179a5ea-8357-40df-aadf-e42a22124593",
+      ]
 
   # To deploy set 'operatoin' parameter to deploy, otherwise set it to planOnly or rollback
   - name: operation
@@ -213,25 +217,20 @@ stages:
         pool:
           vmImage: "ubuntu-latest"
           steps:
-            - task: AzureCLI@2
-              name: "RollbackDeployment"
-              strategy:
-                matrix:
-                  dev:
-                    subscriptionId: ${{ parameters.devSubscriptionId }}
-                  prd:
-                    subscriptionId: ${{ parameters.prdSubscriptionId }}
-              # condition: eq('${{ parameters.operation }}', 'rollback')
-              inputs:
-                azureSubscription: ${{ parameters.serviceName }}
-                scriptType: "pscore"
-                scriptLocation: "inlineScript"
-                inlineScript: |
-                  az upgrade --yes --verbose
-                  az bicep upgrade --verbose
-                  az --version
-                  az account show
-                  az account set --subscription $(subscriptionId)
-                  az stack sub delete --name $(stackName) --delete-all --yes --verbose
-                failOnStandardError: false
-                addSpnToEnvironment: true
+            - ${{ each sub in subList }}:
+              - task: AzureCLI@2
+                name: "Rollback-${{ sub }}"
+                # condition: eq('${{ parameters.operation }}', 'rollback')
+                inputs:
+                  azureSubscription: ${{ parameters.serviceName }}
+                  scriptType: "pscore"
+                  scriptLocation: "inlineScript"
+                  inlineScript: |
+                    az upgrade --yes --verbose
+                    az bicep upgrade --verbose
+                    az --version
+                    az account show
+                    az account set --subscription ${{ sub }}
+                    az stack sub delete --name $(stackName) --delete-all --yes --verbose
+                  failOnStandardError: false
+                  addSpnToEnvironment: true
