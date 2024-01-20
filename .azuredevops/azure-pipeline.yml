@@ -185,7 +185,6 @@ stages:
                   submodules: true
                   lfs: true
                   persistCredentials: true
-
                 # Deploy the resources
                 - task: AzureCLI@2
                   name: "DeployResources"
@@ -210,10 +209,11 @@ stages:
   - stage: rollback # Note: rollback cleans up both the dev AND prd environments
     dependsOn: plan
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
-    maxParallel: 2
     jobs:
       - ${{ each sub in parameters.subList }}:
           - job: "rollback_sub_${{ replace(sub, '-','_') }}"
+            strategy:
+              parallel: 2
             continueOnError: false
             timeoutInMinutes: 120
             pool:
