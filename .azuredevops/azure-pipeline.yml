@@ -205,6 +205,8 @@ stages:
     condition: and(eq('${{ parameters.operation }}', 'rollback'), succeeded('plan'))
     jobs:
       - deployment: "Rollback"
+        continueOnError: false
+        timeoutInMinutes: 120
         strategy:
           matrix:
             dev:
@@ -213,26 +215,25 @@ stages:
             prd:
               envir: prd
               subscriptionId: ${{ parameters.prdSubscriptionId }}
+        environment: $(envir)
         pool:
           vmImage: "ubuntu-latest"
-        continueOnError: false
-        environment: $(envir)
-        timeoutInMinutes: 120
-        steps:
-          - checkout: none
-          - task: AzureCLI@2
-            name: "RollbackDeployment"
-            condition: eq('${{ parameters.operation }}', 'rollback')
-            inputs:
-              azureSubscription: ${{ parameters.serviceName }}
-              scriptType: "pscore"
-              scriptLocation: "inlineScript"
-              inlineScript: |
-                az upgrade --yes --verbose
-                az bicep upgrade --verbose
-                az --version
-                az account show
-                az account set --subscription $(subscriptionId)
-                az stack sub delete --name $(stackName) --delete-all --yes --verbose
-              failOnStandardError: false
-              addSpnToEnvironment: true
+          deploy:
+            steps:
+              - checkout: none
+              - task: AzureCLI@2
+                name: "RollbackDeployment"
+                condition: eq('${{ parameters.operation }}', 'rollback')
+                inputs:
+                  azureSubscription: ${{ parameters.serviceName }}
+                  scriptType: "pscore"
+                  scriptLocation: "inlineScript"
+                  inlineScript: |
+                    az upgrade --yes --verbose
+                    az bicep upgrade --verbose
+                    az --version
+                    az account show
+                    az account set --subscription $(subscriptionId)
+                    az stack sub delete --name $(stackName) --delete-all --yes --verbose
+                  failOnStandardError: false
+                  addSpnToEnvironment: true
