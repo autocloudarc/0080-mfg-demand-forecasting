@@ -36,7 +36,7 @@ env:
   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  serviceName: wif-bcp-005 # Using federated credentials oid-gha-0080-dev and oid-gha-0080-prd
+  serviceName: wif-bcp-005 # Using federated credentials oid-gha-0080-dev, oid-gha-0080-prd or: oid-gha-0080-main-dev-br
   location: eastus2
   stackName: 'stack-${{ github.workflow}}-${{ github.run_id }}-${{ github.run_number }}'
   templateFile: src/bicep/main.bicep
