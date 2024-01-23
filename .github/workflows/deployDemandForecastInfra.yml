@@ -144,7 +144,7 @@ jobs:
         run: |
           az upgrade --yes --verbose
           az account set --subscription ${{ env.prdSubscriptionId }}
-          az deployment sub create --location ${{ env.location }} --name ${{ env.stackName }} --description "deployment ${{ env.stackName }}" --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
+          az deployment sub create --location ${{ env.location }} --name ${{ env.stackName }} --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
 
     # rollback:
     #     needs: plan
