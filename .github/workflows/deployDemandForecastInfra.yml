@@ -62,7 +62,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: true
-          if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && (env.operation == 'deploy' || env.operation == 'planOnly') }}
+          if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
         # Authenticate to Azure tenant using the Azure login action (OIDC)
         # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main-dev
@@ -76,7 +76,7 @@ jobs:
         if: ${{ env.operation == 'deploy' }}
 
       - name: Plan Deployment
-        if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && (env.operation == 'deploy' || env.operation == 'planOnly') }}
+        if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
         run: |
           az account show
           az account set --subscription ${{ env.devSubscriptionId }}
