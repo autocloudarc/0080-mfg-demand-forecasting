@@ -1,0 +1,151 @@
+# FILEPATH: .github/workflows/deployDemandForecastInfra.yml
+# Use OpenID Connect to authenticate to Azure
+# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect
+# *** https://colinsalmcorner.com/using-oidc-with-terraform-in-github-actions/
+# https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-github-actions?tabs=openid%2CCLI
+
+# 1. [x] task-item: add variable to set debug mode
+# 2. [x] task-item: create spn for github actions
+# 3. [x] task-item: configure federated credentials (oidc) for spn
+# 4. [x] task-item: create dev and prd environments
+# 5. [x] task-item: create secret variables for credentials and subscription ids
+
+name: '$GITHUB_WORKFLOW-$GITHUB_RUN_ID-$GITHUB_RUN_NUMBER'
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+# OIDC permissions for the GitHub-hosted runner
+permissions:
+  id-token: write
+  contents: read
+
+# Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+defaults:
+  run:
+    shell: bash
+    working-directory: '$GITHUB_WORKSPACE/src/bicep'
+
+# Global environment variables accessible from any job
+env:
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  serviceName: wif-bcp-005 # Using federated credentials oid-gha-0080-dev and oid-gha-0080-prd
+  location: eastus2
+  stackName: 'stack-${{ github.workflow}}-${{ github.run_id }}-${{ github.run_number }}'
+  templateFile: ${{ github.workspace }}/src/bicep/main.bicep
+  templateParametersFile: ${{ github.workspace }}/src/bicep/main.bicepparam
+  denySettingsMode: none
+  devSubscriptionId: ${{ secrets.DEV_SUBSCRIPTION_ID }}
+  prdSubscriptionId: ${{ secrets.PRD_SUBSCRIPTION_ID }}
+  subList: |
+    [
+        ${{ secrets.DEV_SUBSCRIPTION_ID }},
+        ${{ secrets.PRD_SUBSCRIPTION_ID }}
+    ]
+  operation: rollback # Options: planOnly, deploy, rollback
+  environment: all # Options: dev, prd, all
+  secretVariableSource: ghSecrets # Options: ghSecrets, keyVault
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository to the GitHub-hosted runner
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: true
+          if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && (env.operation == 'deploy' || env.operation == 'planOnly') }}
+
+        # Authenticate to Azure tenant using the Azure login action (OIDC)
+      - name: Authenticate to Azure with OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
+        if: ${{ env.operation == 'deploy' }}
+
+      - name: Plan Deployment
+        if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && (env.operation == 'deploy' || env.operation == 'planOnly') }}
+        run: |
+          az account show
+          az account set --subscription ${{ env.devSubscriptionId }}
+          az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
+
+    # deploy_to_dev:
+    #     needs: plan
+    #     if: ${{ github.event_name == 'push' && env.operation == 'deploy' && needs.plan.result == 'success' && (env.environment == 'dev' || env.environment == 'all') }}
+    #     runs-on: ubuntu-latest
+
+    #     steps:
+    #         - name: Checkout
+    #             uses: actions/checkout@v2
+    #             with:
+    #                 fetch-depth: 0
+    #                 submodules: true
+
+    #         - name: Set up Azure CLI
+    #             uses: azure/login@v1
+    #             with:
+    #                 creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    #         - name: Deploy Resources
+    #             env:
+    #                 dbUserName: ${{ secrets.dbUserName }}
+    #                 dbUserPw: ${{ secrets.dbUserPw }}
+    #                 stackName: ${{ env.stackName }}
+    #             run: |
+    #                 az upgrade --yes --verbose
+    #                 az deployment sub create --location ${{ env.location }} --name ${{ env.stackName }} --description "deployment ${{ env.stackName }}" --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
+
+    # deploy_to_prd:
+    #     needs: deploy_to_dev
+    #     if: ${{ github.event_name == 'push' && env.operation == 'deploy' && needs.deploy_to_dev.result == 'success' && (env.environment == 'prd' || env.environment == 'all') }}
+    #     runs-on: ubuntu-latest
+
+    #     steps:
+    #         - name: Checkout
+    #             uses: actions/checkout@v2
+    #             with:
+    #                 fetch-depth: 0
+    #                 submodules: true
+
+    #         - name: Set up Azure CLI
+    #             uses: azure/login@v1
+    #             with:
+    #                 creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    #         - name: Deploy Resources
+    #             env:
+    #                 dbUserName: ${{ secrets.dbUserName }}
+    #                 dbUserPw: ${{ secrets.dbUserPw }}
+    #                 stackName: ${{ env.stackName }}
+    #             run: |
+    #                 az upgrade --yes --verbose
+    #                 az deployment sub create --location ${{ env.location }} --name ${{ env.stackName }} --description "deployment ${{ env.stackName }}" --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
+
+    # rollback:
+    #     needs: plan
+    #     if: ${{ github.event_name == 'push' && env.operation == 'rollback' && needs.plan.result == 'success' }}
+    #     runs-on: ubuntu-latest
+
+    #     steps:
+    #         ${{ each sub in fromJson(env.subList) }}:
+    #             - name: Rollback
+    #                 uses: azure/login@v1
+    #                 with:
+    #                     creds: ${{ secrets.AZURE_CREDENTIALS }}
+    #                 run: |
+    #                     az upgrade --yes --verbose
+    #                     az deployment sub delete --name ${{ env.stackName }} --delete-all --yes --verbose
