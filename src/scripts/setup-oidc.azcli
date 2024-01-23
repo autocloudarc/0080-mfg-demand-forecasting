@@ -1,0 +1,46 @@
+# Static variables
+echo "Assigning static variables"
+appDisplayName='app-001' # replace with your app name
+role='contributor' # replace with your prefered role
+spType='ServicePrincipal'
+scope='/' # replace with your scope
+method='POST'
+org='autocloudarc' # replace with your org name
+repo='0080-mfg-demand-forecasting' # replace with your repo name
+
+echo "Creating Azure AD App"
+az ad app create --display-name $appDisplayName
+
+echo "Retrieving Azure AD App Id"
+appId=$(az ad app list --display-name $appDisplayName --query [].appId -o tsv)
+
+echo "Retrieving Azure AD App Object Id"
+appObjectId=$(az ad app list --display-name $appDisplayName --query [].id -o tsv)
+
+echo "Creating Azure AD Service Principal"
+az ad sp create --id $appId
+
+echo "Retrieving Azure AD Service Principal Object Id"
+assigneeObjectId=$(az ad sp list --display-name $appDisplayName --query [].id -o tsv)
+
+echo "Retrieving Azure AD Tenant Id"
+tenantId=$(az account show --query tenantId -o tsv)
+
+echo "Retrieving Azure Subscription Id"
+subId=$(az account show --query id -o tsv)
+
+echo "Assigning Azure AD App to all subscriptions in the tenant with the Contributor Role"
+az role assignment create --role $role --subscription $subId --assignee-object-id  $assigneeObjectId --assignee-principal-type $spType --scope $scope
+
+# Output summary
+echo "`$appId: $appId"
+echo "`$appObjectId: $appObjectId"
+echo "`$assigneeObjectId: $assigneeObjectId"
+echo "`$tenantId: $tenantId"
+echo "`$subId: $subId"
+echo "`$appObjectId: $appObjectId"
+
+# Create the federated identity credentials
+# echo "Creating the federated identity credentials"
+# az rest --method $method --uri 'https://graph.microsoft.com/beta/applications/$appObjectId/federatedIdentityCredentials' \
+# --body '{"name":"$appDisplayName","issuer":"https://token.actions.githubusercontent.com","subject":"repo:$org/$repo:ref:refs/heads/main","description":"$appDisplayName","audiences":["api://AzureADTokenExchange"]}'
