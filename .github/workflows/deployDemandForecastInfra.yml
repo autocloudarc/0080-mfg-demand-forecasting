@@ -78,7 +78,7 @@ jobs:
         if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
         run: |
           az account show
-          az account set --subscription ${{ env.devSubscriptionId }}
+          az account set --subscription ${{ secrets.devSubscriptionId }}
           az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
 
     # deploy_to_dev:
