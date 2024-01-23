@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository to the GitHub-hosted runner
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -65,7 +65,7 @@ jobs:
 
         # Authenticate to Azure tenant using the Azure login action (OIDC)
         # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
-      - name: Authenticate to Azure with OIDC
+      - name: authenticateToAzureWithOIDC
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -81,31 +81,36 @@ jobs:
           az account set --subscription ${{ env.devSubscriptionId }}
           az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
 
-    # deploy_to_dev:
-    #     needs: plan
-    #     if: ${{ github.event_name == 'push' && env.operation == 'deploy' && needs.plan.result == 'success' && (env.environment == 'dev' || env.environment == 'all') }}
-    #     runs-on: ubuntu-latest
+  deploy_to_dev:
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: true
+        if: ${{ (env.operation == 'deploy') }}
 
-    #     steps:
-    #         - name: Checkout
-    #             uses: actions/checkout@v2
-    #             with:
-    #                 fetch-depth: 0
-    #                 submodules: true
+      # Authenticate to Azure tenant using the Azure login action (OIDC)
+      - name: authenticateToAzureWithOIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
 
-    #         - name: Set up Azure CLI
-    #             uses: azure/login@v1
-    #             with:
-    #                 creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    #         - name: Deploy Resources
-    #             env:
-    #                 dbUserName: ${{ secrets.dbUserName }}
-    #                 dbUserPw: ${{ secrets.dbUserPw }}
-    #                 stackName: ${{ env.stackName }}
-    #             run: |
-    #                 az upgrade --yes --verbose
-    #                 az deployment sub create --location ${{ env.location }} --name ${{ env.stackName }} --description "deployment ${{ env.stackName }}" --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
+      - name: deployToDev
+        env:
+          dbUserName: ${{ secrets.DB_USER_NAME }}
+          dbUserPw: ${{ secrets.DB_USER_PW }}
+          stackName: ${{ env.stackName }}
+        run: |
+          az upgrade --yes --verbose
+          az deployment sub create --location ${{ env.location }} --name ${{ env.stackName }} --description "deployment ${{ env.stackName }}" --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
 
     # deploy_to_prd:
     #     needs: deploy_to_dev
