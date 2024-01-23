@@ -36,9 +36,8 @@ env:
   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  serviceName: wif-bcp-005 # Using federated credentials oid-gha-0080-dev, oid-gha-0080-prd or: oid-gha-0080-main-dev-br
   location: eastus2
-  stackName: 'stack-${{ github.workflow}}-${{ github.run_id }}-${{ github.run_number }}'
+  stackName: 'stack-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_number }}'
   templateFile: src/bicep/main.bicep
   templateParametersFile: src/bicep/main.bicepparam
   denySettingsMode: none
@@ -66,6 +65,7 @@ jobs:
           if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
         # Authenticate to Azure tenant using the Azure login action (OIDC)
+        # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main-dev
       - name: Authenticate to Azure with OIDC
         uses: azure/login@v1
         with:
