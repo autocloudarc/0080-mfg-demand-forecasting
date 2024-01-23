@@ -50,7 +50,7 @@ env:
         ${{ secrets.DEV_SUBSCRIPTION_ID }},
         ${{ secrets.PRD_SUBSCRIPTION_ID }}
     ]
-  operation: rollback # Options: planOnly, deploy, rollback
+  operation: planOnly # Options: planOnly, deploy, rollback
   environment: all # Options: dev, prd, all
   secretVariableSource: ghSecrets # Options: ghSecrets, keyVault
 
