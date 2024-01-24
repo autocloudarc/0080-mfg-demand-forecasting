@@ -10,6 +10,9 @@ org='autocloudarc' # replace with your org name
 repo='0080-mfg-demand-forecasting' # replace with your repo name
 authSubName='sub01' # replace with your default subscription name to which you authenticate to the tenant
 
+# Authenticate to the tenant
+az login
+
 echo "Creating Azure AD App"
 az ad app create --display-name $appDisplayName
 
