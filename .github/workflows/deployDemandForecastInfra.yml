@@ -109,7 +109,7 @@ jobs:
         run: |
           $githubWorkspace = "${{ github.workspace }}"
           $ghPreferredWorkspacePath = ($githubWorkspace | Split-Path -parent)
-          echo "wsPath=$hgPreferredWorkspacePath" >> $GITHUB_ENV
+          echo "wsPath=/home/runner/work/0080-mfg-demand-forecasting" >> $GITHUB_ENV
 
       - name: deployToDev
         env:
