@@ -75,6 +75,14 @@ jobs:
           enable-AzPSSession: false
         if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
+      - name: showGitHubWorkspacePath
+        shell: pwsh
+        run: |
+          $templateFilePath = "${{ github.workspace }}/${{ env.templateFile }}"
+          $templateParametersFilePath = "${{ github.workspace }}/${{ env.templateParametersFile }}"
+          $githubWorkspace = "${{ github.workspace }}"
+          Write-Host "`gitHubWorkspace: $githubWorkspace"
+
       - name: Plan Deployment
         if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
         run: |
