@@ -4,7 +4,7 @@ inputs:
   client-id:
     description: 'Service Principal Client ID'
     required: true
-  tenant-id: 
+  tenant-id:
     description: 'Service Principal Tenant ID'
     required: true
   subscription-id:
@@ -12,25 +12,32 @@ inputs:
     required: true
   enable-AzPSSession:
     description: 'Enable Az PowerShell Session'
-    required: true
+    required: false
     default: false
+  fetch-depth:
+    description: 'Depth of commits to fetch'
+    required: false
+    default: 0
+  submodules:
+    description: 'Initialize and update submodules'
+    required: false
+    default: true
 outputs:
   myOutput:
     description: 'Output from the action'
 runs:
   using: 'composite'
   steps:
-    - run: echo Hello ${{ inputs.myInput }}.
-      shell: bash
-    - id: step1
-      run: echo "::set-output name=myOutput::Hello ${{ inputs.myInput }}"
-      shell: bash
-
+    # - run: echo Hello ${{ inputs.myInput }}.
+    #   shell: bash
+    # - id: step1
+    #   run: echo "::set-output name=myOutput::Hello ${{ inputs.myInput }}"
+    #   shell: bash
     - id: checkout
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0
-        submodules: true
+        fetch-depth: ${{ inputs.fetch-depth }}
+        submodules: ${{ inputs.submodules }}
     # Authenticate to Azure tenant using the Azure login action (OIDC)
     # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
     - id: authenticateToAzureWithOIDC

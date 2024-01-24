@@ -23,7 +23,6 @@ permissions:
 defaults:
   run:
     shell: bash
-    working-directory: $GITHUB_WORKSPACE
 
 # Global environment variables accessible from any job
 env:
