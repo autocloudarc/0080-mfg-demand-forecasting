@@ -104,7 +104,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: false
 
-      - name: deployToDev
+      - name: transformWorkspacePath
         shell: pwsh
         run: |
           $githubWorkspace = "${{ github.workspace }}"
