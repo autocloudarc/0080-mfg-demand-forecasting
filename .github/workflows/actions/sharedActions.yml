@@ -33,14 +33,14 @@ runs:
     # - id: step1
     #   run: echo "::set-output name=myOutput::Hello ${{ inputs.myInput }}"
     #   shell: bash
-    - id: checkout
+    - id: reusable-action-checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: ${{ inputs.fetch-depth }}
         submodules: ${{ inputs.submodules }}
     # Authenticate to Azure tenant using the Azure login action (OIDC)
     # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
-    - id: authenticateToAzureWithOIDC
+    - id: reusable-action-authenticate
       uses: azure/login@v1
       with:
         client-id: ${{ inputs.client-id }}
