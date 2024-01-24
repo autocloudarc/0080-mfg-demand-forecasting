@@ -57,15 +57,15 @@ jobs:
           submodules: true
           if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
-      - id: reusable-action-checkout
-        uses: ./.github/workflows/actions/sharedActions.yml
-        with:
-          fetch-depth: 0
-          submodules: true
-          if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
+      #   - id: reusable-action-checkout
+      #     uses: ./.github/workflows/actions/sharedActions.yml
+      #     with:
+      #       fetch-depth: 0
+      #       submodules: true
+      #       if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
-        # Authenticate to Azure tenant using the Azure login action (OIDC)
-        # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
+      # Authenticate to Azure tenant using the Azure login action (OIDC)
+      # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
       - name: authenticateToAzureWithOIDC
         uses: azure/login@v1
         with:
