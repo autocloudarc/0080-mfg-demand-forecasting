@@ -31,8 +31,8 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   location: eastus2
   stackName: 'stack-${{ github.workflow }}'
-  templateFile: '/home/runner/work/0080-mfg-demand-forecasting/0080-mfg-demand-forecasting/src/bicep/main.bicep'
-  templateParametersFile: '/home/runner/work/0080-mfg-demand-forecasting/0080-mfg-demand-forecasting/src/bicep/main.json'
+  templateFile: './src/bicep/main.bicep'
+  templateParametersFile: './src/bicep/main.json'
   denySettingsMode: none
   devSubscriptionId: ${{ secrets.DEV_SUBSCRIPTION_ID }}
   prdSubscriptionId: ${{ secrets.PRD_SUBSCRIPTION_ID }}
@@ -46,39 +46,39 @@ env:
   secretVariableSource: ghSecrets # Options: ghSecrets, keyVault
 
 jobs:
-  #   plan:
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - name: checkout
-  #         uses: actions/checkout@v3
-  #         with:
-  #           fetch-depth: 0
-  #           submodules: true
-  #         if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: true
+        if:
+          ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
+          #   - id: reusable-action-checkout
+          #     uses: ./.github/workflows/actions/sharedActions.yml
+          #     with:
+          #       fetch-depth: 0
+          #       submodules: true
 
-  #       #   - id: reusable-action-checkout
-  #       #     uses: ./.github/workflows/actions/sharedActions.yml
-  #       #     with:
-  #       #       fetch-depth: 0
-  #       #       submodules: true
+          # Authenticate to Azure tenant using the Azure login action (OIDC)
+          # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
+      - name: authenticateToAzureWithOIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
+        if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
-  #       # Authenticate to Azure tenant using the Azure login action (OIDC)
-  #       # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
-  #       - name: authenticateToAzureWithOIDC
-  #         uses: azure/login@v1
-  #         with:
-  #           client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #           enable-AzPSSession: true
-  #         if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
-
-  #       - name: Plan Deployment
-  #         if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
-  #         run: |
-  #           az account show
-  #           az account set --subscription ${{ env.devSubscriptionId }}
-  #           az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
+      - name: Plan Deployment
+        if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
+        run: |
+          az account show
+          az account set --subscription ${{ env.devSubscriptionId }}
+          az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
 
   deploy_to_dev:
     # needs: plan
