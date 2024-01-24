@@ -105,13 +105,6 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: false
 
-      - name: transformWorkspacePath
-        shell: pwsh
-        run: |
-          $githubWorkspace = "${{ github.workspace }}"
-          $ghPreferredWorkspacePath = ($githubWorkspace | Split-Path -parent)
-          echo "wsPath=/home/runner/work/0080-mfg-demand-forecasting" >> $GITHUB_ENV
-
       - name: deployToDev
         env:
           dbUserName: ${{ secrets.DB_USER_NAME }}
