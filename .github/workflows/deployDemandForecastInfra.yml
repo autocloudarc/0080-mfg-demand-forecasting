@@ -57,11 +57,6 @@ jobs:
           submodules: true
         if:
           ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
-          #   - id: reusable-action-checkout
-          #     uses: ./.github/workflows/actions/sharedActions.yml
-          #     with:
-          #       fetch-depth: 0
-          #       submodules: true
 
           # Authenticate to Azure tenant using the Azure login action (OIDC)
           # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
@@ -79,4 +74,5 @@ jobs:
         run: |
           az account show
           az account set --subscription ${{ env.devSubscriptionId }}
-          az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
+          az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} \
+          --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
