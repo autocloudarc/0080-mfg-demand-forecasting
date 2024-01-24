@@ -82,6 +82,8 @@ jobs:
           $templateParametersFilePath = "${{ github.workspace }}/${{ env.templateParametersFile }}"
           $githubWorkspace = "${{ github.workspace }}"
           Write-Host "`gitHubWorkspace: $githubWorkspace"
+          Write-Host "`templateFilePath: $templateFilePath"
+          Write-Host "`templateParametersFilePath: $templateParametersFilePath"
 
       - name: Plan Deployment
         if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
