@@ -23,7 +23,6 @@ permissions:
 defaults:
   run:
     shell: bash
-    working-directory: src/bicep
 
 # Global environment variables accessible from any job
 env:
@@ -32,8 +31,8 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   location: eastus2
   stackName: 'stack-${{ github.workflow }}'
-  templateFile: main.bicep
-  templateParametersFile: main.bicepparam
+  templateFile: '/home/runner/work/0080-mfg-demand-forecasting/main.bicep'
+  templateParametersFile: '/home/runner/work/0080-mfg-demand-forecasting/main.bicepparam'
   denySettingsMode: none
   devSubscriptionId: ${{ secrets.DEV_SUBSCRIPTION_ID }}
   prdSubscriptionId: ${{ secrets.PRD_SUBSCRIPTION_ID }}
@@ -50,20 +49,18 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository to the GitHub-hosted runner
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
-          if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
+        if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
       #   - id: reusable-action-checkout
       #     uses: ./.github/workflows/actions/sharedActions.yml
       #     with:
       #       fetch-depth: 0
       #       submodules: true
-      #       if: ${{ (env.operation == 'deploy' || env.operation == 'planOnly') }}
 
       # Authenticate to Azure tenant using the Azure login action (OIDC)
       # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
@@ -88,13 +85,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     steps:
-      # Checkout the repository to the GitHub Actions runner
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
-        if: ${{ (env.operation == 'deploy') }}
+        if: ${{ env.operation == 'deploy' }}
 
       # Authenticate to Azure tenant using the Azure login action (OIDC)
       - name: authenticateToAzureWithOIDC
@@ -146,7 +142,7 @@ jobs:
         run: |
           az upgrade --yes --verbose
           az account set --subscription ${{ env.prdSubscriptionId }}
-          az stack sub create --location ${{ env.location }} --name ${{ env.stackName }} --description ${{ env.stackName }} --delete-all --template-file ${{ github.workspace }}/${{ env.templateFile }} --parameters ${{ github.workspace }}/${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
+          az stack sub create --location ${{ env.location }} --name ${{ env.stackName }} --description ${{ env.stackName }} --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
 
   rollback:
     needs: [deploy_to_dev, deploy_to_prd]
