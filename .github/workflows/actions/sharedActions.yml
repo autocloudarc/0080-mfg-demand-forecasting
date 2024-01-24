@@ -1,0 +1,18 @@
+name: 'reusable-actions'
+description: 'A set of reusable actions, including checkout and OIDC authentication'
+inputs:
+  myInput:
+    description: 'Input to use'
+    required: true
+    default: 'world'
+outputs:
+  myOutput:
+    description: 'Output from the action'
+runs:
+  using: 'composite'
+  steps:
+    - run: echo Hello ${{ inputs.myInput }}.
+      shell: bash
+    - id: step1
+      run: echo "::set-output name=myOutput::Hello ${{ inputs.myInput }}"
+      shell: bash

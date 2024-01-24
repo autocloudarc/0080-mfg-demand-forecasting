@@ -1,0 +1,10 @@
+jobs:
+  myJob:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: step1
+        uses: ./.github/actions/my-action
+        with:
+          myInput: 'GitHub'
+      - run: echo ${{ steps.step1.outputs.myOutput }}
