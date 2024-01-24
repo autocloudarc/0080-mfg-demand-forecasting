@@ -32,7 +32,7 @@ env:
   location: eastus2
   stackName: 'stack-${{ github.workflow }}'
   templateFile: '/home/runner/work/0080-mfg-demand-forecasting/src/bicep/main.bicep'
-  templateParametersFile: '/home/runner/work/0080-mfg-demand-forecasting/src/bicep/main.bicepparam'
+  templateParametersFile: '/home/runner/work/0080-mfg-demand-forecasting/src/bicep/main.json'
   denySettingsMode: none
   devSubscriptionId: ${{ secrets.DEV_SUBSCRIPTION_ID }}
   prdSubscriptionId: ${{ secrets.PRD_SUBSCRIPTION_ID }}
