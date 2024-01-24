@@ -31,8 +31,8 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   location: eastus2
   stackName: 'stack-${{ github.workflow }}'
-  templateFile: '/home/runner/work/0080-mfg-demand-forecasting/main.bicep'
-  templateParametersFile: '/home/runner/work/0080-mfg-demand-forecasting/main.bicepparam'
+  templateFile: '/home/runner/work/0080-mfg-demand-forecasting/src/bicep/main.bicep'
+  templateParametersFile: '/home/runner/work/0080-mfg-demand-forecasting/src/bicep/main.bicepparam'
   denySettingsMode: none
   devSubscriptionId: ${{ secrets.DEV_SUBSCRIPTION_ID }}
   prdSubscriptionId: ${{ secrets.PRD_SUBSCRIPTION_ID }}
