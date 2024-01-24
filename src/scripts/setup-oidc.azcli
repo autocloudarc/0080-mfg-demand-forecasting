@@ -1,3 +1,4 @@
+# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows
 # Static variables
 echo "Assigning static variables"
 appDisplayName='app-001' # replace with your app name
