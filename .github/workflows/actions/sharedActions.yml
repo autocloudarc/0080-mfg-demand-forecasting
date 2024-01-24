@@ -1,10 +1,19 @@
 name: 'reusable-actions'
 description: 'A set of reusable actions, including checkout and OIDC authentication'
 inputs:
-  myInput:
-    description: 'Input to use'
+  client-id:
+    description: 'Service Principal Client ID'
     required: true
-    default: 'world'
+  tenant-id: 
+    description: 'Service Principal Tenant ID'
+    required: true
+  subscription-id:
+    description: 'Azure Subscription ID'
+    required: true
+  enable-AzPSSession:
+    description: 'Enable Az PowerShell Session'
+    required: true
+    default: false
 outputs:
   myOutput:
     description: 'Output from the action'
@@ -16,9 +25,18 @@ runs:
     - id: step1
       run: echo "::set-output name=myOutput::Hello ${{ inputs.myInput }}"
       shell: bash
+
     - id: checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
         submodules: true
-    
+    # Authenticate to Azure tenant using the Azure login action (OIDC)
+    # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
+    - id: authenticateToAzureWithOIDC
+      uses: azure/login@v1
+      with:
+        client-id: ${{ inputs.client-id }}
+        tenant-id: ${{ inputs.tenant-id }}
+        subscription-id: ${{ inputs.subscription-id }}
+        enable-AzPSSession: ${{ inputs.enable-AzPSSession }}
