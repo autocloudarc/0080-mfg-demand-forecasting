@@ -4,12 +4,6 @@
 # *** https://colinsalmcorner.com/using-oidc-with-terraform-in-github-actions/
 # https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-github-actions?tabs=openid%2CCLI
 
-# 1. [x] task-item: add variable to set debug mode
-# 2. [x] task-item: create spn for github actions
-# 3. [x] task-item: configure federated credentials (oidc) for spn
-# 4. [x] task-item: create dev and prd environments
-# 5. [x] task-item: create secret variables for credentials and subscription ids
-
 name: deploy-demand-forecast-infra
 on:
   push:
@@ -36,7 +30,7 @@ env:
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   location: eastus2
-  stackName: 'stack-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_number }}'
+  stackName: 'stack-${{ github.workflow }}'
   templateFile: src/bicep/main.bicep
   templateParametersFile: src/bicep/main.bicepparam
   denySettingsMode: none
@@ -146,17 +140,22 @@ jobs:
           az account set --subscription ${{ env.prdSubscriptionId }}
           az deployment sub create --location ${{ env.location }} --name ${{ env.stackName }} --delete-all --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --parameters dbUserName=${{ env.dbUserName }} dbUserPw=${{ env.dbUserPw }} --deny-settings-mode ${{ env.denySettingsMode }} --yes --verbose
 
-    # rollback:
-    #     needs: plan
-    #     if: ${{ github.event_name == 'push' && env.operation == 'rollback' && needs.plan.result == 'success' }}
-    #     runs-on: ubuntu-latest
-
-    #     steps:
-    #         ${{ each sub in fromJson(env.subList) }}:
-    #             - name: Rollback
-    #                 uses: azure/login@v1
-    #                 with:
-    #                     creds: ${{ secrets.AZURE_CREDENTIALS }}
-    #                 run: |
-    #                     az upgrade --yes --verbose
-    #                     az deployment sub delete --name ${{ env.stackName }} --delete-all --yes --verbose
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: rollback-authn
+        if: ${{ (env.operation == 'rollback') }}
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
+      - name: rollback-deployments
+        if: ${{ (env.operation == 'rollback') }}
+        run: |
+          az upgrade --yes --verbose
+          for sub in "${subList[@]}"; do
+            az account set --subscription "$sub"
+            az deployment sub delete --name ${{ env.stackName }} --delete-all --yes --verbose
+          done
