@@ -8,6 +8,7 @@ scope='/' # replace with your scope
 method='POST'
 org='autocloudarc' # replace with your org name
 repo='0080-mfg-demand-forecasting' # replace with your repo name
+authSubName='sub01' # replace with your default subscription name to which you authenticate to the tenant
 
 echo "Creating Azure AD App"
 az ad app create --display-name $appDisplayName
@@ -26,6 +27,8 @@ assigneeObjectId=$(az ad sp list --display-name $appDisplayName --query [].id -o
 
 echo "Retrieving Azure AD Tenant Id"
 tenantId=$(az account show --query tenantId -o tsv)
+
+az account set --subscription $authSubName
 
 echo "Retrieving Azure Subscription Id"
 subId=$(az account show --query id -o tsv)
