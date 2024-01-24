@@ -102,6 +102,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: false
 
+      - name: List directory
+        run: ls -R
+
       - name: deployToDev
         env:
           dbUserName: ${{ secrets.DB_USER_NAME }}
