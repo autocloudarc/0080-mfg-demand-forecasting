@@ -41,7 +41,7 @@ env:
         ${{ secrets.DEV_SUBSCRIPTION_ID }},
         ${{ secrets.PRD_SUBSCRIPTION_ID }}
     ]
-  operation: planOnly # Options: planOnly, deploy, rollback
+  operation: deploy # Options: planOnly, deploy, rollback
   environment: all # Options: dev, prd, all
   secretVariableSource: ghSecrets # Options: ghSecrets, keyVault
 
@@ -101,14 +101,14 @@ jobs:
         enable-AzPSSession: false
 
     # https://github.com/Azure/login
-    - name: deploy
+    - name: provision
       uses: azure/CLI@v1
       with:
         azcliversion: latest
         inlineScript: |
           az --version
           az account show
-          az account set --subscription ${{ secrets.PRD_SUBSCRIPTION_ID }}
+          az account set --subscription ${{ env.prdSubscriptionId }}
           az stack sub create --name ${{ env.stackName }} --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --deny-settings-mode none --delete-all --yes --verbose
       if: ${{ env.operation == 'deploy' }}
 
@@ -119,6 +119,6 @@ jobs:
         inlineScript: |
           az --version
           az account show
-          az account set --subscription ${{ secrets.PRD_SUBSCRIPTION_ID }}
+          az account set --subscription ${{ env.prdSubscriptionId }}
           az stack sub delete --name ${{ env.stackName }} --delete-all --yes --verbose
       if: ${{ env.operation == 'rollback' }}
