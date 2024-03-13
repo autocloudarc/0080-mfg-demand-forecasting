@@ -48,6 +48,7 @@ env:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -75,3 +76,49 @@ jobs:
           az account set --subscription ${{ env.devSubscriptionId }}
           az deployment sub create --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} \
           --parameters dbUserName=${{ secrets.DB_USER_NAME }} dbUserPw=${{ secrets.DB_USER_PW }} --what-if --verbose
+  deploy:    
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: prd
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        submodules: true
+      if:
+        ${{ env.operation == 'deploy' }}
+      
+
+    # Authenticate to Azure tenant using the Azure login action (OIDC)
+    - name: Authenticate to Azure with OIDC
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        enable-AzPSSession: false
+
+    # https://github.com/Azure/login
+    - name: deploy
+      uses: azure/CLI@v1
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az --version
+          az account show
+          az account set --subscription ${{ secrets.PRD_SUBSCRIPTION_ID }}
+          az stack sub create --name ${{ env.stackName }} --location ${{ env.location }} --template-file ${{ env.templateFile }} --parameters ${{ env.templateParametersFile }} --deny-settings-mode none --delete-all --yes --verbose
+      if: ${{ env.operation == 'deploy' }}
+
+    - name: rollback
+      uses: azure/CLI@v1
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az --version
+          az account show
+          az account set --subscription ${{ secrets.PRD_SUBSCRIPTION_ID }}
+          az stack sub delete --name ${{ env.stackName }} --delete-all --yes --verbose
+      if: ${{ env.operation == 'rollback' }}
