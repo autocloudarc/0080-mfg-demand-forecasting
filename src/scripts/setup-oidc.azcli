@@ -1,17 +1,17 @@
 # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows
 # Static variables
 echo "Assigning static variables"
-appDisplayName='app-001' # replace with your app name
+appDisplayName='app-002' # replace with your app name
 role='contributor' # replace with your prefered role
 spType='ServicePrincipal'
-scope='/' # replace with your scope
+scope='/subscriptions/e25024e7-c4a5-4883-80af-9e81b2f8f689' # replace with your scope
 method='POST'
 org='autocloudarc' # replace with your org name
-repo='0080-mfg-demand-forecasting' # replace with your repo name
-authSubName='sub01' # replace with your default subscription name to which you authenticate to the tenant
+repo='0079-called-workflows' # replace with your repo name
+authSubName='mcap-azr-dev-sub-01' # replace with your default subscription name to which you authenticate to the tenant
 
 # Authenticate to the tenant
-az login
+# az login
 
 echo "Creating Azure AD App"
 az ad app create --display-name $appDisplayName

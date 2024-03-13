@@ -23,7 +23,6 @@ permissions:
 defaults:
   run:
     shell: bash
-    working-directory: src/bicep
 
 # Global environment variables accessible from any job
 env:
@@ -32,8 +31,8 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   location: eastus2
   stackName: 'stack-${{ github.workflow }}'
-  templateFile: main.bicep
-  templateParametersFile: main.json
+  templateFile: /src/bicep/main.bicep
+  templateParametersFile: /src/bicep/main.json
   denySettingsMode: none
   devSubscriptionId: ${{ secrets.DEV_SUBSCRIPTION_ID }}
   prdSubscriptionId: ${{ secrets.PRD_SUBSCRIPTION_ID }}
@@ -61,7 +60,7 @@ jobs:
           # Authenticate to Azure tenant using the Azure login action (OIDC)
           # Using oid-ghb-0080 app registration and service principal. OIDC credential name is: oid-ghb-0080-br-main.
       - name: authenticateToAzureWithOIDC
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
