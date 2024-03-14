@@ -12,9 +12,9 @@ param rgpLocation string
 param dbUserName string
 param dbUserPw string
 param iacResourceGroupName string
-param iacUmi string
+// param iacUmi string
 param kvtName string
-param aiwRetentionInDays int = 7
+// param aiwRetentionInDays int = 7
 param iacSubId string = 'e25024e7-c4a5-4883-80af-9e81b2f8f689'
 
 
@@ -35,7 +35,7 @@ var sqlDbCollation = 'SQL_Latin1_General_CP1_CI_AS'
 var sqlMaxDbSize = 2147483648
 var sqlSampleName = 'AdventureWorksLT'
 var adfPublicNetworkAccess = 'Enabled'
-var aiwPrefix = 'aiw'
+var aiwPrefix = 'aiwk'
 var aiwName = '${aiwPrefix}${randomString}'
 var aicType = 'web'
 var aicFlowType = 'Redfield'
@@ -98,9 +98,6 @@ resource appInsights 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
 resource appInsightsComponent 'Microsoft.Insights/components@2020-02-02-preview' = {
   name: aiwName
   location: rgpLocation
-  dependsOn: [
-    appInsights
-  ]
   properties: {
         Application_Type: aicType
         ApplicationId: aiwName
@@ -115,10 +112,10 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' existin
   scope: resourceGroup(iacSubId,iacResourceGroupName)
 }
 
-resource umi 'Microsoft.ManagedIdentity/identities@2023-07-31-preview' existing = {
-	name: iacUmi
-    scope: resourceGroup(iacSubId,iacResourceGroupName)
-}
+// resource umi 'Microsoft.ManagedIdentity/identities@2023-07-31-preview' existing = {
+// 	name: iacUmi
+//     scope: resourceGroup(iacSubId,iacResourceGroupName)
+// }
 
 resource kvt 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
 	name: kvtName
