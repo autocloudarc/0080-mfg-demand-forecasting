@@ -98,9 +98,9 @@ resource appInsights 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
 resource appInsightsComponent 'Microsoft.Insights/components@2020-02-02-preview' = {
   name: aiwName
   location: rgpLocation
+  kind: 'web'
   properties: {
         Application_Type: aicType
-        ApplicationId: aiwName
         Flow_Type: aicFlowType
         Request_Source: aicRequestSource
         WorkspaceResourceId: appInsights.id
