@@ -9,7 +9,7 @@ param dbUserName string
 @secure()
 param dbUserPw string
 param iacResourceGroupName string = 'rgp-iac'
-// param iacUmi string = 'umi-001'
+param iacUmi string = 'umi-001'
 param kvtName string = 'kvt-1322'
 
 var randomString = substring(randomLongString,0,8)
@@ -52,7 +52,7 @@ module demand 'modules/demand.bicep' = {
     dbUserName: dbUserName
     dbUserPw: dbUserPw
     iacResourceGroupName: iacResourceGroupName
-    // iacUmi: iacUmi
+    iacUmi: iacUmi
     kvtName: kvtName
   }
 }

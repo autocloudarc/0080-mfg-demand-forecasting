@@ -12,7 +12,7 @@ param rgpLocation string
 param dbUserName string
 param dbUserPw string
 param iacResourceGroupName string
-// param iacUmi string
+param iacUmi string
 param kvtName string
 // param aiwRetentionInDays int = 7
 param iacSubId string = 'e25024e7-c4a5-4883-80af-9e81b2f8f689'
@@ -85,6 +85,11 @@ resource streamAnalyticsJob 'Microsoft.StreamAnalytics/streamingjobs@2021-10-01-
   }
 }
 
+resource umi 'Microsoft.ManagedIdentity/identities@2023-07-31-preview' existing = {
+	name: iacUmi
+    scope: resourceGroup(iacSubId,iacResourceGroupName)
+}
+
 resource appInsights 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: aiwName
   location: rgpLocation
@@ -101,6 +106,7 @@ resource appInsightsComponent 'Microsoft.Insights/components@2020-02-02-preview'
   kind: 'web'
   properties: {
         Application_Type: aicType
+        // ApplicationId: resourceId(subscription().id, 'Microsoft.MachineLearningServices/workspaces', machineLearningWorkspaceName)
         Flow_Type: aicFlowType
         Request_Source: aicRequestSource
         WorkspaceResourceId: appInsights.id
@@ -111,11 +117,6 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' existin
   name: acrName
   scope: resourceGroup(iacSubId,iacResourceGroupName)
 }
-
-// resource umi 'Microsoft.ManagedIdentity/identities@2023-07-31-preview' existing = {
-// 	name: iacUmi
-//     scope: resourceGroup(iacSubId,iacResourceGroupName)
-// }
 
 resource kvt 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
 	name: kvtName
