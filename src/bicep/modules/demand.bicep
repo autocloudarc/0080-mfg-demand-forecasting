@@ -10,6 +10,7 @@ param sqlDatabaseName string
 param dataFactoryName string
 param rgpLocation string
 param dbUserName string
+@secure()
 param dbUserPw string
 param iacResourceGroupName string
 // param iacUmi string
