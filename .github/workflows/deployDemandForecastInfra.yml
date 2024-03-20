@@ -4,6 +4,7 @@
 # *** https://colinsalmcorner.com/using-oidc-with-terraform-in-github-actions/
 # https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-github-actions?tabs=openid%2CCLI
 # ado boards commit demo AB#2989
+# ado boards commit demo 2 AB#2989
 
 name: deploy-demand-forecast-infra
 on:
