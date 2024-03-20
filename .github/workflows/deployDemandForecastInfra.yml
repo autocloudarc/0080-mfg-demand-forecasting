@@ -3,6 +3,7 @@
 # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect
 # *** https://colinsalmcorner.com/using-oidc-with-terraform-in-github-actions/
 # https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-github-actions?tabs=openid%2CCLI
+# ado boards commit demo AB#2989
 
 name: deploy-demand-forecast-infra
 on:
